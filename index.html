@@ -79,14 +79,14 @@ bridge:g(H(6,27)+L('9,27 20,19 27,25 29,32')+M('<line x1="4" y1="33" x2="36" y2=
 stork:g(H(20,6)+L('20,9 20,23 20,36')+L('20,23 27,23 25,30')+L('11,14 29,14')),pistol:g(H(14,8)+L('14,11 16,21 22,27 20,34')+L('16,21 34,34')),
 deadlift:g(H(9,11)+L('11,13 23,19 23,34')+L('14,16 14,26')+M('<line x1="9" y1="27" x2="19" y2="27"/>')),adduct:g(H(20,8)+L('20,11 20,21 10,32')+L('20,21 30,32')+M('<line x1="6" y1="35" x2="34" y2="35"/>')),
 unk:g('<rect x="5" y="5" width="30" height="30" rx="9" opacity=".35"/>'+H(20,13)+L('20,16 20,24 15,31')+L('20,24 25,31'))};
-const SECS=[["W","Warm-up"],["A","Day A · Strength"],["B1","Day B1 · Power + Stability"],["B2","Day B2 · Hamstrings + Sliders"]];
+const SECS=[["W","This week's exercises"]];
 const SMAP={e0:'A',e1:'W',e2:'B1',e3:'B1',e4:'A',e5:'W',e6:'B1',e7:'A',e8:'B1',e9:'B2',e10:'A',e11:'B2',e12:'W',e13:'A',e14:'W',e15:'B1',e16:'B2',e17:'W',e18:'B2',e19:'B2',e20:'B2',e21:'W',e22:'W',e23:'W',e24:'B2',e25:'A'};
 const DEF=[["Single leg RDL","rdl"],["Copenhagen plank","cope"],["Single leg wall sit","wallsit"],["Jump split / force absorption","unk",1],["Leg extension","ext"],["Wall planted hip","unk",1],["Depth drop","unk",1],["Step up through","unk",1],["Step down side","unk",1],["Adapted squat","unk",1],["Bulgarian split squat","bss"],["Weighted slant board goblet squats","pistol"],["Adductor dip","unk",1],["Adductor machine (inner thigh)","adduct"],["Foam roll","roll"],["Single-leg lateral jumps with ball","jump"],["Straight-leg deadlift","deadlift"],["Monster walk","band"],["Walking lunges","lunge"],["Slider hamstring bridge","bridge"],["Slider side lunge","side"],["Back side step","unk",1],["Lateral band walk","band"],["Stork hold","stork"],["Single-leg squat with lateral slider","pistol"],["Poliquin drop","unk",1]];
 const iso=d=>{const z=new Date(d);return z.getFullYear()+'-'+String(z.getMonth()+1).padStart(2,'0')+'-'+String(z.getDate()).padStart(2,'0')};
 const mon=d=>{d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
 const fresh=()=>({v:2,ex:DEF.map((e,i)=>({id:'e'+i,n:e[0],i:e[1],q:!!e[2]})),week:{start:mon(new Date()),done:{}},hist:[],sort:false});
 function migrate(s){if(!s||!Array.isArray(s.ex))s=fresh();s.week=s.week||{start:mon(new Date()),done:{}};s.week.done=s.week.done||{};s.hist=s.hist||[];s.ex.forEach(e=>{if(e.n==='Deep squat with plate'){e.n='Weighted slant board goblet squats';e.i='pistol';delete e.q}});
- s.ex.forEach(e=>{if(!e.s)e.s=SMAP[e.id]||'W';e.note=e.note||'';});s.week.at=s.week.at||{};s.target=s.target||80;s.theme=s.theme||'auto';s.col=s.col||{};s.v=2;
+ s.col={};s.ex.forEach(e=>{e.s='W';e.note=e.note||'';});s.week.at=s.week.at||{};s.target=s.target||80;s.theme=s.theme||'auto';s.col=s.col||{};s.v=2;
  // backfill last-done from history (hist items carry names only)
  s.ex.forEach(e=>{if(!e.last){const w=s.hist.find(w=>w.items.some(x=>x.d&&(x.id===e.id||x.n===e.n)));if(w)e.last=w.start}});return s}
 let st;try{st=migrate(JSON.parse(localStorage.getItem('legs')||'null'))}catch(_){st=migrate(null)}
@@ -116,7 +116,7 @@ function draw(){theme();const n=st.ex.length,d=st.ex.filter(e=>st.week.done[e.id
   h+='<p class="note">? = name to confirm — icon is a placeholder · long-press or ⓘ for a note</p>'}
  else if(v=='hist'){h=st.hist.length?'<div class="list">'+st.hist.map((w,k)=>{const c=w.items.filter(x=>x.d).length,ok=pct(w)>=st.target;
    return `<button class="hrow" data-h="${k}"><span>Week of ${fmt(w.start,1)}</span><span style="color:${ok?'var(--ac)':'var(--mu)'}">${c}/${w.items.length}${ok?' ✓':''}</span></button>`+(open===k?'<div class="hdet">'+w.items.map(x=>`<div class="${x.d?'y':''}">${x.d?'●':'○'} ${esc(x.n)}</div>`).join('')+'</div>':'')}).join('')+'</div>':'<div class="empty">No past weeks yet.<br>Tap “Start New Week” to archive this one.</div>'}
- else{h='<div class="list">'+st.ex.map((e,k)=>`<div class="row ed">${icon(e)}<input value="${esc(e.n)}" data-r="${k}" aria-label="Name"><select data-s="${k}">${SECS.map(([s])=>`<option ${e.s==s?'selected':''}>${s}</option>`).join('')}</select><button class="ib" data-u="${k}" aria-label="Up">↑</button><button class="ib" data-dn="${k}" aria-label="Down">↓</button><button class="ib" data-x="${k}" aria-label="Delete" style="color:#ff3b30">✕</button></div>`).join('')+'</div>'+
+ else{h='<div class="list">'+st.ex.map((e,k)=>`<div class="row ed">${icon(e)}<input value="${esc(e.n)}" data-r="${k}" aria-label="Name"><button class="ib" data-u="${k}" aria-label="Up">↑</button><button class="ib" data-dn="${k}" aria-label="Down">↓</button><button class="ib" data-x="${k}" aria-label="Delete" style="color:#ff3b30">✕</button></div>`).join('')+'</div>'+
   `<button class="gb" id="add">Add Exercise</button><button class="gb" id="set">Settings & Backup</button>`}
  $('m').innerHTML=h}
 function toggle(id){const was=!!st.week.done[id],e=st.ex.find(x=>x.id==id);snap((was?'Unchecked ':'Done · ')+e.n);
