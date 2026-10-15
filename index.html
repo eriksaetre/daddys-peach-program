@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000" media="(prefers-color-scheme: dark)">
-<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><title>Daddy's Peach Program</title><meta name="apple-mobile-web-app-title" content="DPP">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=2"><link rel="icon" href="icon-192.png"><title>Daddy's Peach Program</title><meta name="apple-mobile-web-app-title" content="DPP">
 <style>
 :root{--bg:#f5f5f7;--card:#fff;--tx:#1d1d1f;--mu:#86868b;--ln:rgba(0,0,0,.08);--ac:#30b75c;--acs:rgba(48,183,92,.12);--wa:#ff9f0a;--sh:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);color-scheme:light}
 :root[data-t=dark]{--bg:#000;--card:#1c1c1e;--tx:#f5f5f7;--mu:#8e8e93;--ln:rgba(255,255,255,.1);--ac:#32d74b;--acs:rgba(50,215,75,.16);--sh:none;color-scheme:dark}
@@ -84,9 +84,9 @@ const SMAP={e0:'A',e1:'W',e2:'B1',e3:'B1',e4:'A',e5:'W',e6:'B1',e7:'A',e8:'B1',e
 const DEF=[["Single leg RDL","rdl"],["Copenhagen plank","cope"],["Single leg wall sit","wallsit"],["Jump split / force absorption","unk",1],["Leg extension","ext"],["Wall planted hip","unk",1],["Depth drop","unk",1],["Step up through","unk",1],["Step down side","unk",1],["Adapted squat","unk",1],["Bulgarian split squat","bss"],["Weighted slant board goblet squats","pistol"],["Adductor dip","unk",1],["Adductor machine (inner thigh)","adduct"],["Foam roll","roll"],["Single-leg lateral jumps with ball","jump"],["Straight-leg deadlift","deadlift"],["Monster walk","band"],["Walking lunges","lunge"],["Slider hamstring bridge","bridge"],["Slider side lunge","side"],["Back side step","unk",1],["Lateral band walk","band"],["Stork hold","stork"],["Single-leg squat with lateral slider","pistol"],["Poliquin drop","unk",1]];
 const iso=d=>{const z=new Date(d);return z.getFullYear()+'-'+String(z.getMonth()+1).padStart(2,'0')+'-'+String(z.getDate()).padStart(2,'0')};
 const mon=d=>{d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
-const fresh=()=>({v:2,ex:DEF.map((e,i)=>({id:'e'+i,n:e[0],i:e[1],q:!!e[2]})),week:{start:mon(new Date()),done:{}},hist:[],sort:false});
+const fresh=()=>({v:2,ex:DEF.map((e,i)=>({id:'e'+i,n:e[0],i:e[1],q:!!e[2]})).sort((a,b)=>({W:0,B2:1,A:2,B1:3}[SMAP[a.id]])-({W:0,B2:1,A:2,B1:3}[SMAP[b.id]])),week:{start:mon(new Date()),done:{}},hist:[],sort:false});
 function migrate(s){if(!s||!Array.isArray(s.ex))s=fresh();s.week=s.week||{start:mon(new Date()),done:{}};s.week.done=s.week.done||{};s.hist=s.hist||[];s.ex.forEach(e=>{if(e.n==='Deep squat with plate'){e.n='Weighted slant board goblet squats';e.i='pistol';delete e.q}});
- s.col={};s.ex.forEach(e=>{e.s='W';e.note=e.note||'';});s.week.at=s.week.at||{};s.target=s.target||80;s.theme=s.theme||'auto';s.col=s.col||{};s.v=2;
+ if(!s.ord){const R={W:0,B2:1,A:2,B1:3};s.ex.sort((a,b)=>(R[SMAP[a.id]]??1)-(R[SMAP[b.id]]??1));s.ord=1}s.col={};s.ex.forEach(e=>{e.s='W';e.note=e.note||'';});s.week.at=s.week.at||{};s.target=s.target||80;s.theme=s.theme||'auto';s.col=s.col||{};s.v=2;
  // backfill last-done from history (hist items carry names only)
  s.ex.forEach(e=>{if(!e.last){const w=s.hist.find(w=>w.items.some(x=>x.d&&(x.id===e.id||x.n===e.n)));if(w)e.last=w.start}});return s}
 let st;try{st=migrate(JSON.parse(localStorage.getItem('legs')||'null'))}catch(_){st=migrate(null)}
